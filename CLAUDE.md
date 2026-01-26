@@ -9,7 +9,7 @@ LaraCRM is a CRM and Accounting system built with Laravel 12 and Filament 5. It 
 ## Tech Stack
 
 - PHP 8.5, Laravel 12, Filament 5, Livewire 4
-- PHPUnit 11 for testing, Laravel Pint for formatting
+- Pest 4 for testing, Laravel Pint for formatting
 - SQLite (dev), spatie/laravel-permission for RBAC
 
 ## Commands
@@ -19,10 +19,11 @@ LaraCRM is a CRM and Accounting system built with Laravel 12 and Filament 5. It 
 composer run dev              # Start all services (server, queue, logs, vite)
 php artisan serve --port=8080 # Start server only
 
-# Testing
-php artisan test --compact                           # Run all tests
-php artisan test --compact --filter=testName         # Run specific test
-php artisan test --compact tests/Feature/File.php   # Run test file
+# Testing (Pest)
+./vendor/bin/pest                              # Run all tests
+./vendor/bin/pest --filter="test name"         # Run specific test
+./vendor/bin/pest tests/Feature/ExampleTest.php  # Run test file
+./vendor/bin/pest --parallel                   # Run tests in parallel
 
 # Code Quality
 vendor/bin/pint --dirty       # Format changed files (run before commits)
@@ -111,8 +112,19 @@ Key relationships:
 
 ## Testing
 
-Use PHPUnit (not Pest). Create tests with:
+Use Pest for all tests. Create tests with:
 ```bash
-php artisan make:test FeatureNameTest           # Feature test
+php artisan make:test FeatureNameTest           # Feature test (uses Pest)
 php artisan make:test UnitNameTest --unit       # Unit test
+```
+
+Pest syntax:
+```php
+it('creates an invoice', function () {
+    $customer = Customer::factory()->create();
+
+    $response = $this->post('/invoices', [...]);
+
+    expect($response->status())->toBe(201);
+});
 ```

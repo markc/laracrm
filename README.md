@@ -1,59 +1,179 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# LaraCRM
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern CRM and Accounting system built with Laravel 12 and Filament 5. Designed as a lightweight alternative to WHMCS for managing customers, invoicing, payments, and double-entry bookkeeping.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### CRM
+- **Customer Management** - Individual and company customers with billing/shipping addresses
+- **Contact Management** - Multiple contacts per customer with primary contact designation
+- **Opportunity Tracking** - Sales pipeline with stages (Lead → Qualified → Proposal → Negotiation → Won/Lost)
+- **Activity Logging** - Calls, emails, meetings, tasks, and notes linked to customers
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Accounting
+- **Chart of Accounts** - Hierarchical account structure (Assets, Liabilities, Equity, Revenue, Expenses)
+- **Double-Entry Bookkeeping** - Proper journal entries with balanced debits/credits
+- **Invoicing** - Create, send, and track invoices with line items and tax calculations
+- **Payments** - Record payments and allocate to invoices
+- **Quotes** - Generate quotes that can be converted to invoices
+- **Products/Services** - Product catalog with pricing and tax rates
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Dashboard
+- Accounting stats (revenue, outstanding, overdue)
+- CRM stats (customers, opportunities, pipeline value)
+- Revenue chart (12-month trend)
+- Opportunity pipeline chart
+- Latest invoices table
+- Upcoming activities table
 
-## Learning Laravel
+## Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- PHP 8.2+
+- Composer
+- Node.js & npm
+- SQLite (development) or MySQL/PostgreSQL (production)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-## Laravel Sponsors
+```bash
+# Clone the repository
+git clone https://github.com/markc/laracrm.git
+cd laracrm
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# Install dependencies
+composer install
+npm install
 
-### Premium Partners
+# Setup environment
+cp .env.example .env
+php artisan key:generate
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# Create database and run migrations
+touch database/database.sqlite
+php artisan migrate
 
-## Contributing
+# Seed sample data (Chart of Accounts + Tax Rates)
+php artisan db:seed
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Build frontend assets
+npm run build
 
-## Code of Conduct
+# Create admin user
+php artisan make:filament-user
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Start development server
+php artisan serve
+```
 
-## Security Vulnerabilities
+Or use the setup script:
+```bash
+composer run setup
+php artisan make:filament-user
+composer run dev
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Usage
+
+Access the admin panel at `http://localhost:8000/admin` after creating a user.
+
+### Quick Start
+1. **Setup Chart of Accounts** - Pre-seeded with standard accounts
+2. **Add Customers** - Create individual or company customers
+3. **Add Products** - Define your products/services with pricing
+4. **Create Invoices** - Generate invoices from products
+5. **Record Payments** - Track payments and allocate to invoices
+
+## Tech Stack
+
+| Component | Version |
+|-----------|---------|
+| PHP | 8.5 |
+| Laravel | 12 |
+| Filament | 5 |
+| Livewire | 4 |
+| Pest | 4 |
+
+### Key Packages
+- `filament/filament` - Admin panel framework
+- `spatie/laravel-permission` - Role-based access control
+- `spatie/laravel-activitylog` - Activity logging
+- `spatie/laravel-medialibrary` - File attachments
+- `barryvdh/laravel-dompdf` - PDF generation
+- `maatwebsite/excel` - Excel import/export
+- `brick/money` - Money handling
+
+## Development
+
+```bash
+# Start all services (server, queue, logs, vite)
+composer run dev
+
+# Run tests
+./vendor/bin/pest
+
+# Run tests in parallel
+./vendor/bin/pest --parallel
+
+# Format code
+vendor/bin/pint
+
+# Generate IDE helpers
+php artisan ide-helper:generate
+```
+
+## Architecture
+
+```
+app/
+├── Enums/                 # Status/type enums (InvoiceStatus, CustomerType, etc.)
+├── Exceptions/            # Custom exceptions (UnbalancedEntryException)
+├── Filament/
+│   ├── Resources/
+│   │   ├── Accounting/    # Account, Invoice, Payment, Quote, Product
+│   │   └── CRM/           # Customer, Contact, Opportunity, Activity
+│   └── Widgets/           # Dashboard widgets
+├── Models/
+│   ├── Accounting/        # Account, Invoice, Payment, JournalEntry, etc.
+│   └── CRM/               # Customer, Contact, Opportunity, Activity
+└── Services/
+    └── Accounting/        # Business logic (InvoiceService, PaymentService, etc.)
+```
+
+### Double-Entry Bookkeeping
+
+The system uses proper double-entry accounting:
+
+```php
+// Creating a journal entry
+$journalService->createEntry([
+    'entry_date' => now(),
+    'description' => 'Invoice payment',
+    'lines' => [
+        ['account_id' => $cashAccount, 'debit_amount' => 100],
+        ['account_id' => $revenueAccount, 'credit_amount' => 100],
+    ],
+]);
+```
+
+All entries are validated to ensure debits equal credits before saving.
+
+## Testing
+
+```bash
+# Run all tests
+./vendor/bin/pest
+
+# Run specific test file
+./vendor/bin/pest tests/Feature/InvoiceTest.php
+
+# Run with coverage
+./vendor/bin/pest --coverage
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT License. See [LICENSE](LICENSE) for details.
+
+## Credits
+
+Built with [Laravel](https://laravel.com) and [Filament](https://filamentphp.com).
