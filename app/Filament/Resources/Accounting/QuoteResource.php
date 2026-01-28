@@ -34,7 +34,7 @@ class QuoteResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Quote Information')
+                Section::make('Quote Details')
                     ->schema([
                         Forms\Components\TextInput::make('quote_number')
                             ->required()
@@ -48,6 +48,7 @@ class QuoteResource extends Resource
                             ->preload()
                             ->required(),
                         Forms\Components\Select::make('opportunity_id')
+                            ->label('Opportunity')
                             ->relationship('opportunity', 'name')
                             ->searchable()
                             ->preload(),
@@ -55,11 +56,6 @@ class QuoteResource extends Resource
                             ->options(QuoteStatus::class)
                             ->required()
                             ->default('draft'),
-                    ])
-                    ->columns(2),
-
-                Section::make('Dates')
-                    ->schema([
                         Forms\Components\DatePicker::make('quote_date')
                             ->required()
                             ->default(now()),
@@ -71,7 +67,8 @@ class QuoteResource extends Resource
                         Forms\Components\DateTimePicker::make('approved_at')
                             ->label('Approved At'),
                     ])
-                    ->columns(4),
+                    ->columns(4)
+                    ->columnSpanFull(),
 
                 Section::make('Totals')
                     ->schema([
@@ -82,31 +79,42 @@ class QuoteResource extends Resource
                             ->disabled()
                             ->dehydrated(),
                         Forms\Components\TextInput::make('discount_amount')
+                            ->label('Discount')
                             ->numeric()
                             ->prefix('$')
                             ->default(0)
                             ->minValue(0),
                         Forms\Components\TextInput::make('tax_amount')
+                            ->label('Tax')
                             ->numeric()
                             ->prefix('$')
                             ->default(0)
                             ->disabled()
                             ->dehydrated(),
                         Forms\Components\TextInput::make('total_amount')
+                            ->label('Total')
                             ->numeric()
                             ->prefix('$')
                             ->default(0)
                             ->disabled()
                             ->dehydrated(),
                     ])
-                    ->columns(4),
-
-                Forms\Components\Textarea::make('notes')
-                    ->rows(2)
+                    ->columns(4)
+                    ->visible(fn ($operation) => $operation === 'edit' || $operation === 'view')
                     ->columnSpanFull(),
 
-                Forms\Components\Textarea::make('terms')
-                    ->rows(3)
+                Section::make('Notes')
+                    ->schema([
+                        Forms\Components\Textarea::make('notes')
+                            ->label('Notes (visible on quote)')
+                            ->rows(3),
+                        Forms\Components\Textarea::make('terms')
+                            ->label('Terms & Conditions')
+                            ->rows(3),
+                    ])
+                    ->columns(2)
+                    ->collapsible()
+                    ->collapsed()
                     ->columnSpanFull(),
             ]);
     }

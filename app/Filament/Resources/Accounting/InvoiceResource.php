@@ -75,7 +75,8 @@ class InvoiceResource extends Resource
                             ->default('draft')
                             ->disabled(fn ($operation) => $operation === 'create'),
                     ])
-                    ->columns(2),
+                    ->columns(5)
+                    ->columnSpanFull(),
 
                 Section::make('Line Items')
                     ->schema([
@@ -83,6 +84,7 @@ class InvoiceResource extends Resource
                             ->relationship()
                             ->schema([
                                 Forms\Components\Select::make('product_id')
+                                    ->label('Product')
                                     ->relationship('product', 'name')
                                     ->searchable()
                                     ->preload()
@@ -100,8 +102,9 @@ class InvoiceResource extends Resource
                                     ->columnSpan(2),
                                 Forms\Components\TextInput::make('description')
                                     ->required()
-                                    ->columnSpan(3),
+                                    ->columnSpan(4),
                                 Forms\Components\TextInput::make('quantity')
+                                    ->label('Qty')
                                     ->numeric()
                                     ->default(1)
                                     ->minValue(0.01)
@@ -109,12 +112,14 @@ class InvoiceResource extends Resource
                                     ->live()
                                     ->columnSpan(1),
                                 Forms\Components\TextInput::make('unit_price')
+                                    ->label('Price')
                                     ->numeric()
                                     ->prefix('$')
                                     ->required()
                                     ->live()
-                                    ->columnSpan(1),
+                                    ->columnSpan(2),
                                 Forms\Components\TextInput::make('discount_percent')
+                                    ->label('Disc %')
                                     ->numeric()
                                     ->suffix('%')
                                     ->default(0)
@@ -123,6 +128,7 @@ class InvoiceResource extends Resource
                                     ->live()
                                     ->columnSpan(1),
                                 Forms\Components\TextInput::make('tax_rate')
+                                    ->label('Tax %')
                                     ->numeric()
                                     ->suffix('%')
                                     ->default(10)
@@ -145,13 +151,15 @@ class InvoiceResource extends Resource
                                     })
                                     ->columnSpan(1),
                             ])
-                            ->columns(10)
+                            ->columns(12)
                             ->defaultItems(1)
                             ->reorderable()
                             ->reorderableWithButtons()
                             ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => $state['description'] ?? 'New Item')
                             ->columnSpanFull(),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
 
                 Section::make('Totals')
                     ->schema([
@@ -169,20 +177,22 @@ class InvoiceResource extends Resource
                             ->content(fn ($record) => $record ? '$'.number_format($record->balance_due, 2) : '$0.00'),
                     ])
                     ->columns(4)
-                    ->visible(fn ($operation) => $operation === 'edit' || $operation === 'view'),
+                    ->visible(fn ($operation) => $operation === 'edit' || $operation === 'view')
+                    ->columnSpanFull(),
 
                 Section::make('Notes')
                     ->schema([
                         Forms\Components\Textarea::make('notes')
                             ->label('Notes (visible on invoice)')
-                            ->rows(2),
+                            ->rows(3),
                         Forms\Components\Textarea::make('terms')
                             ->label('Terms & Conditions')
-                            ->rows(2),
+                            ->rows(3),
                     ])
                     ->columns(2)
                     ->collapsible()
-                    ->collapsed(),
+                    ->collapsed()
+                    ->columnSpanFull(),
             ]);
     }
 

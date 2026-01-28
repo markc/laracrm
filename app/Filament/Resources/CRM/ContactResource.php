@@ -38,7 +38,8 @@ class ContactResource extends Resource
                             ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                             ->searchable(['company_name', 'first_name', 'last_name', 'email'])
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->columnSpan(2),
                         Forms\Components\TextInput::make('first_name')
                             ->required()
                             ->maxLength(255),
@@ -47,14 +48,6 @@ class ContactResource extends Resource
                             ->maxLength(255),
                         Forms\Components\TextInput::make('position')
                             ->maxLength(255),
-                        Forms\Components\Toggle::make('is_primary')
-                            ->label('Primary Contact')
-                            ->default(false),
-                    ])
-                    ->columns(2),
-
-                Section::make('Contact Details')
-                    ->schema([
                         Forms\Components\TextInput::make('email')
                             ->email()
                             ->maxLength(255),
@@ -64,11 +57,23 @@ class ContactResource extends Resource
                         Forms\Components\TextInput::make('mobile')
                             ->tel()
                             ->maxLength(50),
+                        Forms\Components\Toggle::make('is_primary')
+                            ->label('Primary Contact')
+                            ->default(false)
+                            ->inline(false),
                     ])
-                    ->columns(3),
+                    ->columns(4)
+                    ->columnSpanFull(),
 
-                Forms\Components\Textarea::make('notes')
-                    ->rows(3)
+                Section::make('Notes')
+                    ->schema([
+                        Forms\Components\Textarea::make('notes')
+                            ->hiddenLabel()
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->collapsed()
                     ->columnSpanFull(),
             ]);
     }

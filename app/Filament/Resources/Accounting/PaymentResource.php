@@ -55,11 +55,6 @@ class PaymentResource extends Resource
                             ->prefix('$')
                             ->required()
                             ->minValue(0.01),
-                    ])
-                    ->columns(2),
-
-                Section::make('Payment Method')
-                    ->schema([
                         Forms\Components\Select::make('payment_method')
                             ->options(PaymentMethod::class)
                             ->required()
@@ -68,12 +63,14 @@ class PaymentResource extends Resource
                             ->maxLength(255)
                             ->placeholder('Cheque number, transaction ID, etc.'),
                         Forms\Components\Select::make('bank_account_id')
+                            ->label('Bank Account')
                             ->relationship('bankAccount', 'name')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} ({$record->account_number})")
                             ->searchable()
                             ->preload(),
                     ])
-                    ->columns(3),
+                    ->columns(4)
+                    ->columnSpanFull(),
 
                 Section::make('Allocation')
                     ->schema([
@@ -85,10 +82,18 @@ class PaymentResource extends Resource
                             ->content(fn ($record) => $record ? '$'.number_format($record->unallocated_amount, 2) : '$0.00'),
                     ])
                     ->columns(2)
-                    ->visible(fn ($record) => $record !== null),
+                    ->visible(fn ($operation) => $operation === 'edit' || $operation === 'view')
+                    ->columnSpanFull(),
 
-                Forms\Components\Textarea::make('notes')
-                    ->rows(3)
+                Section::make('Notes')
+                    ->schema([
+                        Forms\Components\Textarea::make('notes')
+                            ->hiddenLabel()
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->collapsed()
                     ->columnSpanFull(),
             ]);
     }

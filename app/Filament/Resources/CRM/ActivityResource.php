@@ -41,16 +41,17 @@ class ActivityResource extends Resource
                         Forms\Components\TextInput::make('subject')
                             ->required()
                             ->maxLength(255)
-                            ->columnSpan(2),
+                            ->columnSpan(3),
                         Forms\Components\Select::make('customer_id')
                             ->relationship('customer')
                             ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                             ->searchable(['company_name', 'first_name', 'last_name', 'email'])
                             ->preload()
                             ->required()
-                            ->reactive()
+                            ->live()
                             ->afterStateUpdated(fn ($set) => $set('contact_id', null)),
                         Forms\Components\Select::make('contact_id')
+                            ->label('Contact')
                             ->relationship(
                                 'contact',
                                 'first_name',
@@ -61,6 +62,7 @@ class ActivityResource extends Resource
                             ->preload()
                             ->visible(fn ($get) => filled($get('customer_id'))),
                         Forms\Components\Select::make('opportunity_id')
+                            ->label('Opportunity')
                             ->relationship(
                                 'opportunity',
                                 'name',
@@ -69,8 +71,15 @@ class ActivityResource extends Resource
                             ->searchable()
                             ->preload()
                             ->visible(fn ($get) => filled($get('customer_id'))),
+                        Forms\Components\Select::make('assigned_to')
+                            ->label('Assigned To')
+                            ->relationship('assignedUser', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->default(fn () => auth()->id()),
                     ])
-                    ->columns(3),
+                    ->columns(4)
+                    ->columnSpanFull(),
 
                 Section::make('Schedule')
                     ->schema([
@@ -81,16 +90,18 @@ class ActivityResource extends Resource
                             ->label('Due Date'),
                         Forms\Components\DateTimePicker::make('completed_at')
                             ->label('Completed At'),
-                        Forms\Components\Select::make('assigned_to')
-                            ->relationship('assignedUser', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->default(fn () => auth()->id()),
                     ])
-                    ->columns(4),
+                    ->columns(3)
+                    ->columnSpanFull(),
 
-                Forms\Components\Textarea::make('description')
-                    ->rows(4)
+                Section::make('Description')
+                    ->schema([
+                        Forms\Components\Textarea::make('description')
+                            ->hiddenLabel()
+                            ->rows(4)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
                     ->columnSpanFull(),
             ]);
     }

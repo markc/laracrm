@@ -36,12 +36,22 @@ class OpportunityResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->columnSpan(2),
                         Forms\Components\Select::make('customer_id')
                             ->relationship('customer')
                             ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                             ->searchable(['company_name', 'first_name', 'last_name', 'email'])
                             ->preload()
+                            ->required()
+                            ->columnSpan(2),
+                        Forms\Components\Select::make('stage')
+                            ->options(OpportunityStage::class)
+                            ->required()
+                            ->default('lead')
+                            ->live(),
+                        Forms\Components\DatePicker::make('expected_close_date')
+                            ->label('Expected Close')
                             ->required(),
                         Forms\Components\TextInput::make('value')
                             ->numeric()
@@ -54,40 +64,39 @@ class OpportunityResource extends Resource
                             ->default(10)
                             ->minValue(0)
                             ->maxValue(100),
-                    ])
-                    ->columns(2),
-
-                Section::make('Pipeline')
-                    ->schema([
-                        Forms\Components\Select::make('stage')
-                            ->options(OpportunityStage::class)
-                            ->required()
-                            ->default('lead')
-                            ->reactive(),
-                        Forms\Components\DatePicker::make('expected_close_date')
-                            ->required(),
                         Forms\Components\Select::make('assigned_to')
+                            ->label('Assigned To')
                             ->relationship('assignedUser', 'name')
                             ->searchable()
-                            ->preload(),
+                            ->preload()
+                            ->columnSpan(2),
                     ])
-                    ->columns(3),
+                    ->columns(4)
+                    ->columnSpanFull(),
 
                 Section::make('Outcome')
                     ->schema([
-                        Forms\Components\Textarea::make('lost_reason')
-                            ->rows(2)
-                            ->visible(fn ($get) => $get('stage') === 'lost'),
                         Forms\Components\DateTimePicker::make('won_at')
                             ->visible(fn ($get) => $get('stage') === 'won'),
                         Forms\Components\DateTimePicker::make('lost_at')
                             ->visible(fn ($get) => $get('stage') === 'lost'),
+                        Forms\Components\Textarea::make('lost_reason')
+                            ->rows(2)
+                            ->visible(fn ($get) => $get('stage') === 'lost')
+                            ->columnSpanFull(),
                     ])
                     ->columns(2)
-                    ->collapsed(),
+                    ->visible(fn ($get) => in_array($get('stage'), ['won', 'lost']))
+                    ->columnSpanFull(),
 
-                Forms\Components\Textarea::make('notes')
-                    ->rows(3)
+                Section::make('Notes')
+                    ->schema([
+                        Forms\Components\Textarea::make('notes')
+                            ->hiddenLabel()
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
                     ->columnSpanFull(),
             ]);
     }
