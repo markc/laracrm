@@ -52,7 +52,8 @@ class CustomerResource extends Resource
                         Forms\Components\TextInput::make('company_name')
                             ->visible(fn ($get) => $get('type') === 'company')
                             ->required(fn ($get) => $get('type') === 'company')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->columnSpan(2),
                         Forms\Components\TextInput::make('first_name')
                             ->required(fn ($get) => $get('type') === 'individual')
                             ->maxLength(255),
@@ -70,42 +71,8 @@ class CustomerResource extends Resource
                             ->maxLength(11)
                             ->helperText('Australian Business Number'),
                     ])
-                    ->columns(2),
-
-                Section::make('Billing Address')
-                    ->schema([
-                        Forms\Components\TextInput::make('billing_address.street')
-                            ->label('Street'),
-                        Forms\Components\TextInput::make('billing_address.city')
-                            ->label('City'),
-                        Forms\Components\TextInput::make('billing_address.state')
-                            ->label('State'),
-                        Forms\Components\TextInput::make('billing_address.postcode')
-                            ->label('Postcode'),
-                        Forms\Components\TextInput::make('billing_address.country')
-                            ->label('Country')
-                            ->default('Australia'),
-                    ])
-                    ->columns(2)
-                    ->collapsible(),
-
-                Section::make('Shipping Address')
-                    ->schema([
-                        Forms\Components\TextInput::make('shipping_address.street')
-                            ->label('Street'),
-                        Forms\Components\TextInput::make('shipping_address.city')
-                            ->label('City'),
-                        Forms\Components\TextInput::make('shipping_address.state')
-                            ->label('State'),
-                        Forms\Components\TextInput::make('shipping_address.postcode')
-                            ->label('Postcode'),
-                        Forms\Components\TextInput::make('shipping_address.country')
-                            ->label('Country')
-                            ->default('Australia'),
-                    ])
-                    ->columns(2)
-                    ->collapsible()
-                    ->collapsed(),
+                    ->columns(4)
+                    ->columnSpanFull(),
 
                 Section::make('Account Settings')
                     ->schema([
@@ -129,14 +96,62 @@ class CustomerResource extends Resource
                             ])
                             ->default('AUD'),
                         Forms\Components\Select::make('assigned_to')
+                            ->label('Assigned To')
                             ->relationship('assignedUser', 'name')
                             ->searchable()
                             ->preload(),
                     ])
-                    ->columns(2),
+                    ->columns(5)
+                    ->columnSpanFull(),
 
-                Forms\Components\Textarea::make('notes')
-                    ->rows(3)
+                Section::make('Billing Address')
+                    ->schema([
+                        Forms\Components\TextInput::make('billing_address.street')
+                            ->label('Street')
+                            ->columnSpan(2),
+                        Forms\Components\TextInput::make('billing_address.city')
+                            ->label('City'),
+                        Forms\Components\TextInput::make('billing_address.state')
+                            ->label('State'),
+                        Forms\Components\TextInput::make('billing_address.postcode')
+                            ->label('Postcode'),
+                        Forms\Components\TextInput::make('billing_address.country')
+                            ->label('Country')
+                            ->default('Australia'),
+                    ])
+                    ->columns(6)
+                    ->collapsible()
+                    ->columnSpanFull(),
+
+                Section::make('Shipping Address')
+                    ->schema([
+                        Forms\Components\TextInput::make('shipping_address.street')
+                            ->label('Street')
+                            ->columnSpan(2),
+                        Forms\Components\TextInput::make('shipping_address.city')
+                            ->label('City'),
+                        Forms\Components\TextInput::make('shipping_address.state')
+                            ->label('State'),
+                        Forms\Components\TextInput::make('shipping_address.postcode')
+                            ->label('Postcode'),
+                        Forms\Components\TextInput::make('shipping_address.country')
+                            ->label('Country')
+                            ->default('Australia'),
+                    ])
+                    ->columns(6)
+                    ->collapsible()
+                    ->collapsed()
+                    ->columnSpanFull(),
+
+                Section::make('Notes')
+                    ->schema([
+                        Forms\Components\Textarea::make('notes')
+                            ->hiddenLabel()
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->collapsed()
                     ->columnSpanFull(),
             ]);
     }
