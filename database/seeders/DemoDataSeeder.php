@@ -75,7 +75,7 @@ class DemoDataSeeder extends Seeder
                 ['email' => $userData['email']],
                 [
                     'name' => $userData['name'],
-                    'password' => bcrypt('password'),
+                    'password' => bcrypt('Demo@2026'),
                 ]
             );
         }
