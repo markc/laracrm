@@ -42,19 +42,16 @@ class ProductResource extends Resource
                             ->default(fn () => 'SKU-'.strtoupper(Str::random(8))),
                         Forms\Components\TextInput::make('name')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->columnSpan(2),
                         Forms\Components\Select::make('type')
                             ->options(ProductType::class)
                             ->required()
                             ->default('service'),
                         Forms\Components\Toggle::make('is_active')
                             ->label('Active')
-                            ->default(true),
-                    ])
-                    ->columns(2),
-
-                Section::make('Pricing')
-                    ->schema([
+                            ->default(true)
+                            ->inline(false),
                         Forms\Components\TextInput::make('unit_price')
                             ->numeric()
                             ->prefix('$')
@@ -71,25 +68,36 @@ class ProductResource extends Resource
                             ->minValue(0)
                             ->maxValue(100),
                     ])
-                    ->columns(3),
+                    ->columns(5)
+                    ->columnSpanFull(),
 
                 Section::make('Accounting')
                     ->schema([
                         Forms\Components\Select::make('income_account_id')
+                            ->label('Income Account')
                             ->relationship('incomeAccount', 'name')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->code} - {$record->name}")
                             ->searchable()
                             ->preload(),
                         Forms\Components\Select::make('expense_account_id')
+                            ->label('Expense Account')
                             ->relationship('expenseAccount', 'name')
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->code} - {$record->name}")
                             ->searchable()
                             ->preload(),
                     ])
-                    ->columns(2),
+                    ->columns(2)
+                    ->columnSpanFull(),
 
-                Forms\Components\Textarea::make('description')
-                    ->rows(3)
+                Section::make('Description')
+                    ->schema([
+                        Forms\Components\Textarea::make('description')
+                            ->hiddenLabel()
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible()
+                    ->collapsed()
                     ->columnSpanFull(),
             ]);
     }
