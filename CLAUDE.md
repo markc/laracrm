@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 LaraCRM is a CRM and Accounting system built with Laravel 12 and Filament 5. It provides customer management, invoicing, payments, quotes, and double-entry bookkeeping.
 
+## Demo Credentials
+
+- **Email:** admin@example.com
+- **Password:** Demo@2026
+
 ## Tech Stack
 
 - PHP 8.5.2, Laravel 12.48.1, Filament 5.1.0, Livewire 4.0.3
