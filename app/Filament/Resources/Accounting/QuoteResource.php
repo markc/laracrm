@@ -42,8 +42,9 @@ class QuoteResource extends Resource
                             ->unique(ignoreRecord: true)
                             ->default(fn () => 'QTE-'.strtoupper(Str::random(8))),
                         Forms\Components\Select::make('customer_id')
-                            ->relationship('customer', 'company_name')
-                            ->searchable()
+                            ->relationship('customer')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
+                            ->searchable(['company_name', 'first_name', 'last_name', 'email'])
                             ->preload()
                             ->required(),
                         Forms\Components\Select::make('opportunity_id')
@@ -117,9 +118,9 @@ class QuoteResource extends Resource
                 Columns\TextColumn::make('quote_number')
                     ->searchable()
                     ->sortable(),
-                Columns\TextColumn::make('customer.company_name')
+                Columns\TextColumn::make('customer.display_name')
                     ->label('Customer')
-                    ->searchable()
+                    ->searchable(['customer.company_name', 'customer.first_name', 'customer.last_name'])
                     ->sortable(),
                 Columns\TextColumn::make('quote_date')
                     ->date()
@@ -140,7 +141,8 @@ class QuoteResource extends Resource
                 Filters\SelectFilter::make('status')
                     ->options(QuoteStatus::class),
                 Filters\SelectFilter::make('customer_id')
-                    ->relationship('customer', 'company_name')
+                    ->relationship('customer', 'id')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                     ->searchable()
                     ->preload(),
             ])

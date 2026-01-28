@@ -43,8 +43,9 @@ class ActivityResource extends Resource
                             ->maxLength(255)
                             ->columnSpan(2),
                         Forms\Components\Select::make('customer_id')
-                            ->relationship('customer', 'company_name')
-                            ->searchable()
+                            ->relationship('customer')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
+                            ->searchable(['company_name', 'first_name', 'last_name', 'email'])
                             ->preload()
                             ->required()
                             ->reactive()
@@ -104,9 +105,9 @@ class ActivityResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->limit(40),
-                Columns\TextColumn::make('customer.company_name')
+                Columns\TextColumn::make('customer.display_name')
                     ->label('Customer')
-                    ->searchable()
+                    ->searchable(['customer.company_name', 'customer.first_name', 'customer.last_name'])
                     ->sortable(),
                 Columns\TextColumn::make('activity_date')
                     ->dateTime()
@@ -135,7 +136,8 @@ class ActivityResource extends Resource
                     ->searchable()
                     ->preload(),
                 Filters\SelectFilter::make('customer_id')
-                    ->relationship('customer', 'company_name')
+                    ->relationship('customer', 'id')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                     ->searchable()
                     ->preload(),
             ])

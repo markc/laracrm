@@ -34,8 +34,9 @@ class ContactResource extends Resource
                 Section::make('Contact Information')
                     ->schema([
                         Forms\Components\Select::make('customer_id')
-                            ->relationship('customer', 'company_name')
-                            ->searchable()
+                            ->relationship('customer')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
+                            ->searchable(['company_name', 'first_name', 'last_name', 'email'])
                             ->preload()
                             ->required(),
                         Forms\Components\TextInput::make('first_name')
@@ -80,9 +81,9 @@ class ContactResource extends Resource
                     ->label('Name')
                     ->searchable(['first_name', 'last_name'])
                     ->sortable(['first_name']),
-                Columns\TextColumn::make('customer.company_name')
-                    ->label('Company')
-                    ->searchable()
+                Columns\TextColumn::make('customer.display_name')
+                    ->label('Customer')
+                    ->searchable(['customer.company_name', 'customer.first_name', 'customer.last_name'])
                     ->sortable(),
                 Columns\TextColumn::make('position')
                     ->searchable(),
@@ -99,7 +100,8 @@ class ContactResource extends Resource
                 Filters\TernaryFilter::make('is_primary')
                     ->label('Primary Contact'),
                 Filters\SelectFilter::make('customer_id')
-                    ->relationship('customer', 'company_name')
+                    ->relationship('customer', 'id')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                     ->searchable()
                     ->preload(),
             ])

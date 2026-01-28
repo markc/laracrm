@@ -18,7 +18,6 @@ use Filament\Tables\Columns;
 use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 use UnitEnum;
 
 class InvoiceResource extends Resource
@@ -51,9 +50,9 @@ class InvoiceResource extends Resource
                             ))
                             ->disabled(fn ($operation) => $operation === 'edit'),
                         Forms\Components\Select::make('customer_id')
-                            ->relationship('customer', 'company_name')
+                            ->relationship('customer')
                             ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
-                            ->searchable()
+                            ->searchable(['company_name', 'first_name', 'last_name', 'email'])
                             ->preload()
                             ->required()
                             ->live()
@@ -219,7 +218,8 @@ class InvoiceResource extends Resource
                 Filters\SelectFilter::make('status')
                     ->options(InvoiceStatus::class),
                 Filters\SelectFilter::make('customer_id')
-                    ->relationship('customer', 'company_name')
+                    ->relationship('customer', 'id')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                     ->searchable()
                     ->preload(),
                 Filters\Filter::make('overdue')

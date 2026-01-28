@@ -38,8 +38,9 @@ class OpportunityResource extends Resource
                             ->required()
                             ->maxLength(255),
                         Forms\Components\Select::make('customer_id')
-                            ->relationship('customer', 'company_name')
-                            ->searchable()
+                            ->relationship('customer')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
+                            ->searchable(['company_name', 'first_name', 'last_name', 'email'])
                             ->preload()
                             ->required(),
                         Forms\Components\TextInput::make('value')
@@ -98,9 +99,9 @@ class OpportunityResource extends Resource
                 Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                Columns\TextColumn::make('customer.company_name')
+                Columns\TextColumn::make('customer.display_name')
                     ->label('Customer')
-                    ->searchable()
+                    ->searchable(['customer.company_name', 'customer.first_name', 'customer.last_name'])
                     ->sortable(),
                 Columns\TextColumn::make('value')
                     ->money('AUD')
@@ -124,7 +125,8 @@ class OpportunityResource extends Resource
                     ->searchable()
                     ->preload(),
                 Filters\SelectFilter::make('customer_id')
-                    ->relationship('customer', 'company_name')
+                    ->relationship('customer', 'id')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                     ->searchable()
                     ->preload(),
             ])

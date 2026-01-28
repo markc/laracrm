@@ -42,8 +42,9 @@ class PaymentResource extends Resource
                             ->unique(ignoreRecord: true)
                             ->default(fn () => 'PAY-'.strtoupper(Str::random(8))),
                         Forms\Components\Select::make('customer_id')
-                            ->relationship('customer', 'company_name')
-                            ->searchable()
+                            ->relationship('customer')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
+                            ->searchable(['company_name', 'first_name', 'last_name', 'email'])
                             ->preload()
                             ->required(),
                         Forms\Components\DatePicker::make('payment_date')
@@ -99,9 +100,9 @@ class PaymentResource extends Resource
                 Columns\TextColumn::make('payment_number')
                     ->searchable()
                     ->sortable(),
-                Columns\TextColumn::make('customer.company_name')
+                Columns\TextColumn::make('customer.display_name')
                     ->label('Customer')
-                    ->searchable()
+                    ->searchable(['customer.company_name', 'customer.first_name', 'customer.last_name'])
                     ->sortable(),
                 Columns\TextColumn::make('payment_date')
                     ->date()
@@ -123,7 +124,8 @@ class PaymentResource extends Resource
                 Filters\SelectFilter::make('payment_method')
                     ->options(PaymentMethod::class),
                 Filters\SelectFilter::make('customer_id')
-                    ->relationship('customer', 'company_name')
+                    ->relationship('customer', 'id')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                     ->searchable()
                     ->preload(),
                 Filters\TernaryFilter::make('fully_allocated')
