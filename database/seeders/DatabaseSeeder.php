@@ -24,10 +24,23 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Seed Chart of Accounts
+        // Seed Chart of Accounts and Tax Rates (required base data)
         $this->call([
             ChartOfAccountsSeeder::class,
             TaxRatesSeeder::class,
+        ]);
+    }
+
+    /**
+     * Seed with full demo data for testing.
+     * Run with: php artisan db:seed --class=DemoDataSeeder
+     */
+    public function runWithDemoData(): void
+    {
+        $this->run();
+
+        $this->call([
+            DemoDataSeeder::class,
         ]);
     }
 }
