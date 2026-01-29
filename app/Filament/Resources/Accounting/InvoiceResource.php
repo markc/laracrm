@@ -241,6 +241,12 @@ class InvoiceResource extends Resource
                 Actions\ViewAction::make(),
                 Actions\EditAction::make()
                     ->visible(fn ($record) => $record->status === InvoiceStatus::Draft),
+                Actions\Action::make('download_pdf')
+                    ->label('PDF')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->url(fn ($record) => route('invoices.pdf', $record))
+                    ->openUrlInNewTab(),
                 Actions\Action::make('send')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('success')

@@ -2,12 +2,14 @@
 
 namespace App\Models\CRM;
 
+use App\Enums\AddressType;
 use App\Enums\CustomerStatus;
 use App\Enums\CustomerType;
 use App\Models\Accounting\Expense;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\Quote;
+use App\Models\Address;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -103,6 +105,23 @@ class Customer extends Model
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    public function shippingAddresses(): HasMany
+    {
+        return $this->hasMany(Address::class)->where('type', AddressType::Shipping);
+    }
+
+    public function defaultShippingAddress(): HasMany
+    {
+        return $this->hasMany(Address::class)
+            ->where('type', AddressType::Shipping)
+            ->where('is_default', true);
     }
 
     public function getDisplayNameAttribute(): string
