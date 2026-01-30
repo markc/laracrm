@@ -52,6 +52,10 @@ class ProductResource extends Resource
                             ->label('Active')
                             ->default(true)
                             ->inline(false),
+                        Forms\Components\Toggle::make('track_inventory')
+                            ->label('Track Stock')
+                            ->helperText('Enable inventory tracking')
+                            ->inline(false),
                         Forms\Components\TextInput::make('unit_price')
                             ->numeric()
                             ->prefix('$')
@@ -122,12 +126,26 @@ class ProductResource extends Resource
                 Columns\IconColumn::make('is_active')
                     ->boolean()
                     ->label('Active'),
+                Columns\IconColumn::make('track_inventory')
+                    ->boolean()
+                    ->label('Stock')
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('')
+                    ->trueColor('success'),
+                Columns\TextColumn::make('total_stock')
+                    ->label('Qty')
+                    ->numeric(decimalPlaces: 2)
+                    ->alignRight()
+                    ->getStateUsing(fn ($record) => $record->track_inventory ? $record->total_stock : null)
+                    ->placeholder('-'),
             ])
             ->filters([
                 Filters\SelectFilter::make('type')
                     ->options(ProductType::class),
                 Filters\TernaryFilter::make('is_active')
                     ->label('Active'),
+                Filters\TernaryFilter::make('track_inventory')
+                    ->label('Tracks Stock'),
             ])
             ->recordActions([
                 Actions\ViewAction::make(),

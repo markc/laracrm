@@ -100,8 +100,11 @@ class CustomerResource extends Resource
                             ->relationship('assignedUser', 'name')
                             ->searchable()
                             ->preload(),
+                        Forms\Components\Toggle::make('is_vendor')
+                            ->label('Is a Vendor')
+                            ->helperText('Enable to create vendor bills for this customer'),
                     ])
-                    ->columns(5)
+                    ->columns(6)
                     ->columnSpanFull(),
 
                 Section::make('Billing Address')
@@ -175,6 +178,12 @@ class CustomerResource extends Resource
                 Columns\TextColumn::make('phone'),
                 Columns\TextColumn::make('status')
                     ->badge(),
+                Columns\IconColumn::make('is_vendor')
+                    ->label('Vendor')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('')
+                    ->trueColor('success'),
                 Columns\TextColumn::make('invoices_sum_balance_due')
                     ->sum('invoices', 'balance_due')
                     ->money('AUD')
@@ -190,6 +199,8 @@ class CustomerResource extends Resource
                     ->options(CustomerType::class),
                 Filters\SelectFilter::make('assigned_to')
                     ->relationship('assignedUser', 'name'),
+                Filters\TernaryFilter::make('is_vendor')
+                    ->label('Vendor'),
                 Filters\TrashedFilter::make(),
             ])
             ->recordActions([

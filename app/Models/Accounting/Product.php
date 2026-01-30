@@ -28,6 +28,7 @@ class Product extends Model
         'expense_account_id',
         'type',
         'is_active',
+        'track_inventory',
     ];
 
     protected function casts(): array
@@ -38,6 +39,7 @@ class Product extends Model
             'tax_rate' => 'decimal:2',
             'type' => ProductType::class,
             'is_active' => 'boolean',
+            'track_inventory' => 'boolean',
         ];
     }
 
@@ -68,8 +70,49 @@ class Product extends Model
         return $this->hasMany(QuoteItem::class);
     }
 
+    public function stockLevels(): HasMany
+    {
+        return $this->hasMany(StockLevel::class);
+    }
+
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
+    public function getTotalStockAttribute(): float
+    {
+        return (float) $this->stockLevels()->sum('quantity_on_hand');
+    }
+
+    public function getTotalAvailableAttribute(): float
+    {
+        return (float) $this->stockLevels()->sum(\DB::raw('quantity_on_hand - quantity_reserved'));
+    }
+
+    public function getStockAtLocation(?int $locationId = null): float
+    {
+        if (! $locationId) {
+            $location = InventoryLocation::getDefault();
+            $locationId = $location?->id;
+        }
+
+        if (! $locationId) {
+            return 0;
+        }
+
+        return (float) ($this->stockLevels()
+            ->where('location_id', $locationId)
+            ->value('quantity_on_hand') ?? 0);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeTracksInventory($query)
+    {
+        return $query->where('track_inventory', true);
     }
 }

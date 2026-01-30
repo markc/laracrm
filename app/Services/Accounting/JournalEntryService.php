@@ -104,7 +104,8 @@ class JournalEntryService
         $totalDebits = collect($lines)->sum('debit_amount');
         $totalCredits = collect($lines)->sum('credit_amount');
 
-        if (bccomp((string) $totalDebits, (string) $totalCredits, 2) !== 0) {
+        // Compare with 2 decimal precision (difference less than 0.01)
+        if (abs((float) $totalDebits - (float) $totalCredits) >= 0.01) {
             throw new UnbalancedEntryException(
                 "Entry is unbalanced: Debits ({$totalDebits}) != Credits ({$totalCredits})"
             );

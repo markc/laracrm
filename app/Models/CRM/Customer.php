@@ -9,6 +9,7 @@ use App\Models\Accounting\Expense;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\Quote;
+use App\Models\Accounting\VendorBill;
 use App\Models\Address;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -40,6 +41,7 @@ class Customer extends Model
         'credit_limit',
         'currency',
         'status',
+        'is_vendor',
         'assigned_to',
         'notes',
     ];
@@ -52,6 +54,7 @@ class Customer extends Model
             'shipping_address' => 'array',
             'credit_limit' => 'decimal:2',
             'status' => CustomerStatus::class,
+            'is_vendor' => 'boolean',
         ];
     }
 
@@ -105,6 +108,11 @@ class Customer extends Model
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class);
+    }
+
+    public function vendorBills(): HasMany
+    {
+        return $this->hasMany(VendorBill::class, 'vendor_id');
     }
 
     public function addresses(): HasMany
@@ -167,5 +175,15 @@ class Customer extends Model
     public function scopeIndividuals($query)
     {
         return $query->where('type', CustomerType::Individual);
+    }
+
+    public function scopeVendors($query)
+    {
+        return $query->where('is_vendor', true);
+    }
+
+    public function getOutstandingPayablesAttribute(): float
+    {
+        return $this->vendorBills()->unpaid()->sum('balance_due');
     }
 }
