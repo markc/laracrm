@@ -3,6 +3,7 @@
 namespace Markc\AiAssistant\Livewire;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -134,6 +135,63 @@ class ChatBox extends Component
         $this->isLoading = false;
         unset($this->conversation, $this->chatMessages);
         $this->dispatch('ai-assistant:message-sent');
+    }
+
+    public function deleteMessage(int $id): void
+    {
+        $message = Message::where('conversation_id', $this->conversationId)->find($id);
+
+        if (! $message) {
+            return;
+        }
+
+        if (! empty($message->attachments)) {
+            foreach ($message->attachments as $attachment) {
+                Storage::disk('public')->delete($attachment['path']);
+            }
+        }
+
+        $message->delete();
+        unset($this->conversation, $this->chatMessages);
+    }
+
+    public function exportChat(): void
+    {
+        $conversation = $this->conversation;
+
+        if (! $conversation) {
+            return;
+        }
+
+        $title = $conversation->title ?? 'Chat';
+        $filename = str($title)->slug().'-'.now()->format('Y-m-d').'.md';
+
+        $markdown = "# {$title}\n\n";
+        $markdown .= "**Model:** {$conversation->model}  \n";
+        $markdown .= "**Date:** {$conversation->created_at->format('Y-m-d H:i')}  \n\n";
+        $markdown .= "---\n\n";
+
+        foreach ($conversation->messages as $message) {
+            $role = $message->isUser() ? 'You' : 'AI Assistant';
+            $time = $message->created_at->format('H:i');
+            $markdown .= "### {$role} ({$time})\n\n";
+
+            if ($message->isUser() && ! empty($message->attachments)) {
+                foreach ($message->attachments as $att) {
+                    $markdown .= "![{$att['original_name']}]({$att['path']})\n\n";
+                }
+            }
+
+            $markdown .= "{$message->content}\n\n";
+
+            if ($message->isAssistant() && $message->input_tokens) {
+                $markdown .= "*Tokens: {$message->input_tokens} in / {$message->output_tokens} out*\n\n";
+            }
+
+            $markdown .= "---\n\n";
+        }
+
+        $this->dispatch('ai-assistant:download', content: $markdown, filename: $filename);
     }
 
     public function removeAttachment(): void

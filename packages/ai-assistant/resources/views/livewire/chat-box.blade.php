@@ -1,4 +1,16 @@
-<div style="display: flex; flex-direction: column; gap: 1.5rem;">
+<div
+    style="display: flex; flex-direction: column; gap: 1.5rem;"
+    x-data
+    @ai-assistant:download.window="
+        const blob = new Blob([$event.detail.content], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = $event.detail.filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    "
+>
     {{-- Input Section --}}
     <x-filament::section>
         <x-slot name="heading">
@@ -13,6 +25,15 @@
                     size="xl"
                     color="success"
                 />
+                @if ($this->conversationId)
+                    <x-filament::icon-button
+                        icon="heroicon-o-arrow-down-tray"
+                        label="Export chat"
+                        wire:click="exportChat"
+                        size="xl"
+                        color="gray"
+                    />
+                @endif
                 <x-filament::input.wrapper>
                     <x-filament::input.select wire:model.live="selectedModel">
                         @foreach ($this->getAvailableModels() as $value => $label)
@@ -53,25 +74,23 @@
         @enderror
 
         <form wire:submit="send">
-            <div style="display: flex; align-items: flex-end; gap: 0.75rem;">
-                {{-- Attachment Button --}}
-                <div>
-                    <input
-                        type="file"
-                        wire:model="attachment"
-                        accept="image/jpeg,image/png,image/gif,image/webp"
-                        style="display: none;"
-                        id="ai-attachment-input"
-                    />
-                    <x-filament::icon-button
-                        icon="heroicon-o-paper-clip"
-                        label="Attach image"
-                        color="gray"
-                        x-on:click="document.getElementById('ai-attachment-input').click()"
-                        :disabled="$isLoading"
-                    />
-                </div>
-
+            <input
+                type="file"
+                wire:model="attachment"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                style="display: none;"
+                id="ai-attachment-input"
+            />
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <button
+                    type="button"
+                    x-on:click="document.getElementById('ai-attachment-input').click()"
+                    @disabled($isLoading)
+                    style="display: flex; align-items: center; justify-content: center; padding: 0.5rem; color: rgb(107 114 128); border: none; background: none; cursor: pointer;"
+                    title="Attach image"
+                >
+                    <x-filament::icon icon="heroicon-o-paper-clip" class="h-5 w-5" />
+                </button>
                 <div style="flex: 1;">
                     <x-filament::input.wrapper>
                         <x-filament::input
@@ -138,15 +157,25 @@
                 </div>
             </x-slot>
             <x-slot name="afterHeader">
-                <span class="text-xs text-gray-500 dark:text-gray-400">
-                    {{ $message->created_at->format('g:i A') }}
-                    @if ($message->isAssistant() && $message->input_tokens)
-                        &middot; &#x2193;{{ number_format($message->input_tokens) }} &#x2191;{{ number_format($message->output_tokens) }}
-                    @endif
-                    @if ($message->isAssistant() && $message->stop_reason)
-                        &middot; {{ $message->stop_reason }}
-                    @endif
-                </span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                        {{ $message->created_at->format('g:i A') }}
+                        @if ($message->isAssistant() && $message->input_tokens)
+                            &middot; &#x2193;{{ number_format($message->input_tokens) }} &#x2191;{{ number_format($message->output_tokens) }}
+                        @endif
+                        @if ($message->isAssistant() && $message->stop_reason)
+                            &middot; {{ $message->stop_reason }}
+                        @endif
+                    </span>
+                    <x-filament::icon-button
+                        icon="heroicon-o-trash"
+                        color="danger"
+                        size="sm"
+                        label="Delete message"
+                        wire:click="deleteMessage({{ $message->id }})"
+                        wire:confirm="Delete this message?"
+                    />
+                </div>
             </x-slot>
 
             {{-- Image Attachments --}}
