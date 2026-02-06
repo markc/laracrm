@@ -5,6 +5,11 @@ A reusable AI chat assistant component for Laravel applications using Anthropic'
 ## Features
 
 - Chat interface with conversation history
+- Image attachment support (vision) — JPEG, PNG, GIF, WebP
+- Model switching (Haiku 4.5, Sonnet 4.5, Opus 4.6)
+- Token usage and stop reason tracking
+- Message deletion with attachment cleanup
+- Chat export to Markdown
 - Livewire-powered real-time updates
 - Filament admin panel integration
 - Tool/function calling support
@@ -66,7 +71,7 @@ Then copy the source files to your app directory.
 
 ```env
 ANTHROPIC_API_KEY=sk-ant-api03-xxxxx
-ANTHROPIC_MODEL=claude-sonnet-4-20250514
+ANTHROPIC_MODEL=claude-sonnet-4-5-20250929
 ANTHROPIC_MAX_TOKENS=4096
 ANTHROPIC_SYSTEM_PROMPT="You are a helpful assistant."
 ```
@@ -81,6 +86,12 @@ php artisan vendor:publish --tag=ai-assistant-config
 
 ```bash
 php artisan migrate
+```
+
+4. Create the storage symlink (required for image attachments):
+
+```bash
+php artisan storage:link
 ```
 
 ## Filament Integration

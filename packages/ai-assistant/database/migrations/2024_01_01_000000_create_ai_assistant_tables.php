@@ -28,10 +28,12 @@ return new class extends Migration
                 $table->foreignId('conversation_id')->constrained('ai_conversations')->cascadeOnDelete();
                 $table->enum('role', ['user', 'assistant']);
                 $table->text('content');
+                $table->json('attachments')->nullable();
                 $table->json('tool_calls')->nullable();
                 $table->json('tool_results')->nullable();
                 $table->integer('input_tokens')->nullable();
                 $table->integer('output_tokens')->nullable();
+                $table->string('stop_reason')->nullable();
                 $table->timestamps();
 
                 $table->index(['conversation_id', 'created_at']);
