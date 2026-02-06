@@ -1,80 +1,95 @@
-<div class="flex flex-col h-[600px] bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-    {{-- Header --}}
-    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-            {{ $this->conversation?->title ?? 'AI Assistant' }}
-        </h3>
-        <button
-            wire:click="newConversation"
-            class="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400"
-        >
-            New Chat
-        </button>
-    </div>
+<div>
+    {{-- Input Section --}}
+    <x-filament::section>
+        <x-slot name="heading">
+            {{ $this->conversation?->title ?? 'New Chat' }}
+        </x-slot>
+        <x-slot name="afterHeader">
+            @if ($this->conversation)
+                <x-filament::icon-button
+                    icon="heroicon-o-plus-circle"
+                    label="New Chat"
+                    wire:click="newConversation"
+                    size="sm"
+                    color="gray"
+                />
+            @endif
+        </x-slot>
 
-    {{-- Messages --}}
-    <div class="flex-1 overflow-y-auto p-4 space-y-4" id="ai-chat-messages">
-        @forelse ($this->messages as $message)
-            <div class="flex {{ $message->role === 'user' ? 'justify-end' : 'justify-start' }}">
-                <div class="max-w-[80%] rounded-lg px-4 py-2 {{ $message->role === 'user' ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white' }}">
-                    <div class="prose prose-sm dark:prose-invert max-w-none">
-                        {!! \Illuminate\Support\Str::markdown($message->content) !!}
-                    </div>
+        <form wire:submit="send">
+            <div style="display: flex; align-items: flex-end; gap: 0.75rem;">
+                <div style="flex: 1;">
+                    <x-filament::input.wrapper>
+                        <x-filament::input
+                            type="text"
+                            wire:model="input"
+                            placeholder="Type your message and press Enter..."
+                            :disabled="$isLoading"
+                            x-on:keydown.enter.prevent="$wire.send()"
+                        />
+                    </x-filament::input.wrapper>
                 </div>
+                <x-filament::button
+                    type="submit"
+                    icon="heroicon-o-paper-airplane"
+                    :disabled="$isLoading"
+                >
+                    {{ $isLoading ? 'Sending...' : 'Send' }}
+                </x-filament::button>
             </div>
-        @empty
-            <div class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                <p>Start a conversation by typing a message below.</p>
-            </div>
-        @endforelse
-
-        @if ($isLoading)
-            <div class="flex justify-start">
-                <div class="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 py-2">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
-                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
-                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
-                    </div>
-                </div>
-            </div>
-        @endif
-    </div>
-
-    {{-- Input --}}
-    <div class="border-t border-gray-200 dark:border-gray-700 p-4">
-        <form wire:submit="send" class="flex gap-2">
-            <input
-                type="text"
-                wire:model="input"
-                placeholder="Type your message..."
-                class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white focus:border-primary-500 focus:ring-primary-500"
-                @disabled($isLoading)
-            />
-            <button
-                type="submit"
-                class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                wire:loading.attr="disabled"
-            >
-                <span wire:loading.remove wire:target="send">Send</span>
-                <span wire:loading wire:target="send">
-                    <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                    </svg>
-                </span>
-            </button>
         </form>
-    </div>
+    </x-filament::section>
 
-    @script
-    <script>
-        Livewire.hook('morph.updated', () => {
-            const container = document.getElementById('ai-chat-messages');
-            if (container) {
-                container.scrollTop = container.scrollHeight;
-            }
-        });
-    </script>
-    @endscript
+    {{-- Loading Indicator --}}
+    @if ($isLoading)
+        <x-filament::section>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <x-filament::loading-indicator class="h-5 w-5 text-primary-500" />
+                <span class="text-sm text-gray-500 dark:text-gray-400">AI is thinking...</span>
+            </div>
+        </x-filament::section>
+    @endif
+
+    {{-- Messages (newest first) --}}
+    @foreach ($this->messages->reverse() as $message)
+        <x-filament::section>
+            <x-slot name="heading">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    @if ($message->isUser())
+                        <x-filament::icon icon="heroicon-o-user" class="h-5 w-5 text-gray-400" />
+                        <span>You</span>
+                    @else
+                        <x-filament::icon icon="heroicon-o-sparkles" class="h-5 w-5 text-primary-500" />
+                        <span>AI Assistant</span>
+                    @endif
+                </div>
+            </x-slot>
+            <x-slot name="afterHeader">
+                <span class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ $message->created_at->format('g:i A') }}
+                </span>
+            </x-slot>
+
+            @if ($message->isUser())
+                <p class="text-sm text-gray-950 dark:text-white">{{ $message->content }}</p>
+            @else
+                <div class="fi-in-rich-text prose max-w-none text-sm dark:prose-invert">
+                    {!! \Illuminate\Support\Str::markdown($message->content) !!}
+                </div>
+            @endif
+        </x-filament::section>
+    @endforeach
+
+    {{-- Empty State --}}
+    @if ($this->messages->isEmpty() && !$isLoading)
+        <x-filament::section>
+            <div style="text-align: center; padding: 1.5rem 0;">
+                <x-filament::icon icon="heroicon-o-chat-bubble-bottom-center-text" class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+                <h3 class="mt-2 text-sm font-semibold text-gray-950 dark:text-white">No messages yet</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Type a message above to start chatting with the AI assistant.
+                </p>
+            </div>
+        </x-filament::section>
+    @endif
 </div>

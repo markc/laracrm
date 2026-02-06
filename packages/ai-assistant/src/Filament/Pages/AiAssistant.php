@@ -59,6 +59,6 @@ class AiAssistant extends Page
 
     public function selectConversation(int $id): void
     {
-        $this->conversationId = $id;
+        $this->conversationId = $id ?: null;
     }
 }
