@@ -8,6 +8,7 @@ use App\Enums\CustomerType;
 use App\Models\Accounting\Expense;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
+use App\Models\Accounting\PurchaseOrder;
 use App\Models\Accounting\Quote;
 use App\Models\Accounting\VendorBill;
 use App\Models\Address;
@@ -113,6 +114,11 @@ class Customer extends Model
     public function vendorBills(): HasMany
     {
         return $this->hasMany(VendorBill::class, 'vendor_id');
+    }
+
+    public function purchaseOrders(): HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class, 'vendor_id');
     }
 
     public function addresses(): HasMany

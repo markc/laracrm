@@ -6,16 +6,17 @@ use App\Enums\QuoteStatus;
 use App\Filament\Resources\Accounting\QuoteResource\Pages;
 use App\Filament\Resources\Accounting\QuoteResource\RelationManagers;
 use App\Models\Accounting\Quote;
+use App\Services\Accounting\QuoteService;
 use BackedEnum;
 use Filament\Actions;
 use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns;
 use Filament\Tables\Filters;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
 use UnitEnum;
 
 class QuoteResource extends Resource
@@ -40,7 +41,7 @@ class QuoteResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true)
-                            ->default(fn () => 'QTE-'.strtoupper(Str::random(8))),
+                            ->default(fn () => app(QuoteService::class)->generateQuoteNumber()),
                         Forms\Components\Select::make('customer_id')
                             ->relationship('customer')
                             ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
@@ -160,19 +161,36 @@ class QuoteResource extends Resource
                     ->color('info')
                     ->requiresConfirmation()
                     ->visible(fn ($record) => $record->status === QuoteStatus::Draft)
-                    ->action(fn ($record) => $record->update([
-                        'status' => QuoteStatus::Sent,
-                        'sent_at' => now(),
-                    ])),
+                    ->action(function ($record) {
+                        app(QuoteService::class)->sendQuote($record);
+                        Notification::make()->title('Quote sent')->success()->send();
+                    }),
                 Actions\Action::make('approve')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
                     ->visible(fn ($record) => $record->status === QuoteStatus::Sent)
-                    ->action(fn ($record) => $record->update([
-                        'status' => QuoteStatus::Approved,
-                        'approved_at' => now(),
-                    ])),
+                    ->action(function ($record) {
+                        app(QuoteService::class)->approveQuote($record);
+                        Notification::make()->title('Quote approved')->success()->send();
+                    }),
+                Actions\Action::make('convert')
+                    ->label('Convert to Invoice')
+                    ->icon('heroicon-o-document-duplicate')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading('Convert Quote to Invoice')
+                    ->modalDescription('This will create a new draft invoice with all line items from this quote.')
+                    ->visible(fn ($record) => $record->status === QuoteStatus::Approved)
+                    ->action(function ($record) {
+                        $invoice = app(QuoteService::class)->convertToInvoice($record);
+                        Notification::make()
+                            ->title('Invoice created: '.$invoice->invoice_number)
+                            ->success()
+                            ->send();
+
+                        return redirect(InvoiceResource::getUrl('view', ['record' => $invoice]));
+                    }),
                 Actions\ViewAction::make(),
                 Actions\EditAction::make(),
             ])

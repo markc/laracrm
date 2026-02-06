@@ -73,6 +73,11 @@ class VendorBill extends Model
         return $this->belongsTo(Customer::class, 'vendor_id');
     }
 
+    public function purchaseOrder(): BelongsTo
+    {
+        return $this->belongsTo(PurchaseOrder::class);
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(VendorBillItem::class)->orderBy('sort_order');
