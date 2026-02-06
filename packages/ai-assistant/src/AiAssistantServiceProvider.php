@@ -4,7 +4,6 @@ namespace Markc\AiAssistant;
 
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
-use Markc\AiAssistant\Livewire\ChatBox;
 use Markc\AiAssistant\Services\AnthropicService;
 
 class AiAssistantServiceProvider extends ServiceProvider
@@ -27,8 +26,13 @@ class AiAssistantServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Register Livewire component
-        Livewire::component('ai-assistant::chat-box', ChatBox::class);
+        // Register Livewire components namespace
+        Livewire::addNamespace(
+            namespace: 'ai-assistant',
+            classNamespace: 'Markc\\AiAssistant\\Livewire',
+            classPath: __DIR__.'/Livewire',
+            classViewPath: __DIR__.'/../resources/views/livewire',
+        );
 
         // Load views
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'ai-assistant');
