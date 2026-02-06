@@ -1,4 +1,4 @@
-<div>
+<div style="display: flex; flex-direction: column; gap: 1.5rem;">
     {{-- Input Section --}}
     <x-filament::section>
         <x-slot name="heading">

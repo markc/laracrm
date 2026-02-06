@@ -1,4 +1,5 @@
 <x-filament-panels::page>
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
     <livewire:ai-assistant::chat-box :conversation-id="$conversationId" :key="$conversationId ?? 'new'" />
 
     {{-- Conversation History --}}
@@ -48,4 +49,5 @@
             </div>
         </x-filament::section>
     @endif
+    </div>
 </x-filament-panels::page>
