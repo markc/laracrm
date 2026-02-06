@@ -5,6 +5,7 @@ namespace Markc\AiAssistant\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Conversation extends Model
 {
@@ -39,11 +40,39 @@ class Conversation extends Model
 
     /**
      * Get messages formatted for the Anthropic API.
+     *
+     * When a message has image attachments, builds a multi-block content array
+     * using plain arrays to avoid SDK nested serialization issues with media_type.
      */
     public function getMessagesForApi(): array
     {
         return $this->messages
-            ->map(fn (Message $m) => ['role' => $m->role, 'content' => $m->content])
+            ->map(function (Message $m) {
+                $content = $m->content;
+
+                if ($m->isUser() && ! empty($m->attachments)) {
+                    $blocks = [];
+
+                    foreach ($m->attachments as $attachment) {
+                        $path = $attachment['path'];
+                        if (Storage::disk('public')->exists($path)) {
+                            $blocks[] = [
+                                'type' => 'image',
+                                'source' => [
+                                    'type' => 'base64',
+                                    'data' => base64_encode(Storage::disk('public')->get($path)),
+                                    'media_type' => $attachment['media_type'],
+                                ],
+                            ];
+                        }
+                    }
+
+                    $blocks[] = ['type' => 'text', 'text' => $m->content];
+                    $content = $blocks;
+                }
+
+                return ['role' => $m->role, 'content' => $content];
+            })
             ->toArray();
     }
 

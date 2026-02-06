@@ -13,15 +13,18 @@ class Message extends Model
         'conversation_id',
         'role',
         'content',
+        'attachments',
         'tool_calls',
         'tool_results',
         'input_tokens',
         'output_tokens',
+        'stop_reason',
     ];
 
     protected function casts(): array
     {
         return [
+            'attachments' => 'array',
             'tool_calls' => 'array',
             'tool_results' => 'array',
         ];

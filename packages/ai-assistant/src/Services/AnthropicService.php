@@ -103,9 +103,10 @@ class AnthropicService
     /**
      * Send a simple message and get a response.
      *
-     * @param  array<array{role: string, content: string}>  $messages
+     * @param  array<array{role: string, content: string|array}>  $messages
+     * @return array{content: string, input_tokens: int, output_tokens: int, stop_reason: ?string}
      */
-    public function chat(array $messages): string
+    public function chat(array $messages): array
     {
         $messageParams = array_map(
             fn ($m) => MessageParam::with(role: $m['role'], content: $m['content']),
@@ -128,13 +129,21 @@ class AnthropicService
 
         $response = $this->client->messages->create(...$params);
 
-        return $this->processResponse($response, $messageParams);
+        $usage = ['input_tokens' => 0, 'output_tokens' => 0, 'stop_reason' => null];
+        $content = $this->processResponse($response, $messageParams, $usage);
+
+        return [
+            'content' => $content,
+            'input_tokens' => $usage['input_tokens'],
+            'output_tokens' => $usage['output_tokens'],
+            'stop_reason' => $usage['stop_reason'],
+        ];
     }
 
     /**
      * Stream a response for real-time output.
      *
-     * @param  array<array{role: string, content: string}>  $messages
+     * @param  array<array{role: string, content: string|array}>  $messages
      * @return Generator<string>
      */
     public function stream(array $messages): Generator
@@ -167,9 +176,14 @@ class AnthropicService
      * Process the response, handling tool calls if necessary.
      *
      * @param  array<MessageParam>  $originalMessages
+     * @param  array{input_tokens: int, output_tokens: int}  $usage
      */
-    private function processResponse(Message $response, array $originalMessages): string
+    private function processResponse(Message $response, array $originalMessages, array &$usage): string
     {
+        $usage['input_tokens'] += $response->usage->inputTokens ?? 0;
+        $usage['output_tokens'] += $response->usage->outputTokens ?? 0;
+        $usage['stop_reason'] = is_string($response->stopReason) ? $response->stopReason : $response->stopReason?->value;
+
         $textContent = '';
         $toolUses = [];
 
@@ -214,7 +228,7 @@ class AnthropicService
 
         $followUp = $this->client->messages->create(...$params);
 
-        return $this->processResponse($followUp, $newMessages);
+        return $this->processResponse($followUp, $newMessages, $usage);
     }
 
     /**
