@@ -17,10 +17,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | The default Claude model to use for requests.
-    | Options: claude-sonnet-4-20250514, claude-opus-4-20250514, etc.
+    | Options: claude-sonnet-4-5-20250929, claude-opus-4-6, etc.
     |
     */
-    'model' => env('ANTHROPIC_MODEL', 'claude-sonnet-4-20250514'),
+    'model' => env('ANTHROPIC_MODEL', 'claude-sonnet-4-5-20250929'),
 
     /*
     |--------------------------------------------------------------------------

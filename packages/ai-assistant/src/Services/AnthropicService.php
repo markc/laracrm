@@ -41,7 +41,7 @@ class AnthropicService
         }
 
         $this->client = new Client(apiKey: $apiKey);
-        $this->model = $model ?? config('ai-assistant.model', 'claude-sonnet-4-20250514');
+        $this->model = $model ?? config('ai-assistant.model', 'claude-sonnet-4-5-20250929');
         $this->maxTokens = $maxTokens ?? config('ai-assistant.max_tokens', 4096);
         $this->systemPrompt = $systemPrompt ?? config('ai-assistant.system_prompt');
     }
