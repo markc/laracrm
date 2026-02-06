@@ -141,10 +141,10 @@ class Customer extends Model
     public function getDisplayNameAttribute(): string
     {
         if ($this->type === CustomerType::Company) {
-            return $this->company_name ?? "{$this->first_name} {$this->last_name}";
+            return $this->company_name ?? trim("{$this->first_name} {$this->last_name}") ?: "Customer #{$this->id}";
         }
 
-        return trim("{$this->first_name} {$this->last_name}") ?: $this->company_name ?? '';
+        return trim("{$this->first_name} {$this->last_name}") ?: $this->company_name ?? "Customer #{$this->id}";
     }
 
     public function getFullAddressAttribute(): string

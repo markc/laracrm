@@ -46,7 +46,7 @@ class StockMovementResource extends Resource
                             ])
                             ->required()
                             ->live()
-                            ->afterStateUpdated(fn (Forms\Set $set) => $set('from_location_id', null)),
+                            ->afterStateUpdated(fn ($set) => $set('from_location_id', null)),
                         Forms\Components\Select::make('product_id')
                             ->label('Product')
                             ->options(fn () => Product::tracksInventory()->active()->pluck('name', 'id'))

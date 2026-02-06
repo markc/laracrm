@@ -24,7 +24,7 @@ class ItemsRelationManager extends RelationManager
                     ->searchable()
                     ->preload()
                     ->live()
-                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                    ->afterStateUpdated(function ($state, $set) {
                         if ($state) {
                             $product = \App\Models\Accounting\Product::find($state);
                             if ($product) {

@@ -46,7 +46,7 @@ class AccountResource extends Resource
                             ->options(AccountType::class)
                             ->required()
                             ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                            ->afterStateUpdated(function ($state, $set) {
                                 if ($state) {
                                     $type = AccountType::from($state);
                                     $set('normal_balance', $type->normalBalance());

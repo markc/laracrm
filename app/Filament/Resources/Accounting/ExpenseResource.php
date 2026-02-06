@@ -81,7 +81,7 @@ class ExpenseResource extends Resource
                             ->prefix('$')
                             ->required()
                             ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                            ->afterStateUpdated(function ($state, $set, $get) {
                                 $amount = (float) ($state ?? 0);
                                 $taxAmount = round($amount * 0.1, 2);
                                 $set('tax_amount', $taxAmount);
@@ -93,7 +93,7 @@ class ExpenseResource extends Resource
                             ->prefix('$')
                             ->default(0)
                             ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                            ->afterStateUpdated(function ($state, $set, $get) {
                                 $amount = (float) ($get('amount') ?? 0);
                                 $tax = (float) ($state ?? 0);
                                 $set('total_amount', $amount + $tax);
@@ -121,7 +121,7 @@ class ExpenseResource extends Resource
                             ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                             ->searchable(['company_name', 'first_name', 'last_name'])
                             ->preload()
-                            ->visible(fn (Forms\Get $get) => $get('is_billable')),
+                            ->visible(fn ($get) => $get('is_billable')),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
@@ -174,6 +174,7 @@ class ExpenseResource extends Resource
                 Filters\SelectFilter::make('vendor_id')
                     ->label('Vendor')
                     ->relationship('vendor', 'company_name')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                     ->searchable()
                     ->preload(),
                 Filters\Filter::make('billable')

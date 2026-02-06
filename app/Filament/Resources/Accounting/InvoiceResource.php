@@ -56,7 +56,7 @@ class InvoiceResource extends Resource
                             ->preload()
                             ->required()
                             ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                            ->afterStateUpdated(function ($state, $set) {
                                 if ($state) {
                                     $customer = \App\Models\CRM\Customer::find($state);
                                     if ($customer) {
@@ -89,7 +89,7 @@ class InvoiceResource extends Resource
                                     ->searchable()
                                     ->preload()
                                     ->live()
-                                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                    ->afterStateUpdated(function ($state, $set) {
                                         if ($state) {
                                             $product = \App\Models\Accounting\Product::find($state);
                                             if ($product) {

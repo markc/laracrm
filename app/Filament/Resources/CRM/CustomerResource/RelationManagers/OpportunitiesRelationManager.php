@@ -37,7 +37,7 @@ class OpportunitiesRelationManager extends RelationManager
                     ->required()
                     ->default('lead')
                     ->live()
-                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                    ->afterStateUpdated(function ($state, $set) {
                         if ($state) {
                             $stage = OpportunityStage::from($state);
                             $set('probability', $stage->probability());

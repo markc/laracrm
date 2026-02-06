@@ -97,7 +97,7 @@ class PurchaseOrderResource extends Resource
                                     ->searchable()
                                     ->preload()
                                     ->live()
-                                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                    ->afterStateUpdated(function ($state, $set) {
                                         if ($state) {
                                             $product = \App\Models\Accounting\Product::find($state);
                                             if ($product) {
@@ -216,6 +216,7 @@ class PurchaseOrderResource extends Resource
                 Filters\SelectFilter::make('vendor_id')
                     ->label('Vendor')
                     ->relationship('vendor', 'company_name')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
                     ->searchable()
                     ->preload(),
                 Filters\TrashedFilter::make(),
