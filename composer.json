@@ -5,8 +5,16 @@
     "description": "The skeleton application for the Laravel framework.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/ai-assistant"
+        }
+    ],
     "require": {
         "php": "^8.2",
+        "anthropic-ai/sdk": "^0.3",
+        "markc/ai-assistant": "@dev",
         "barryvdh/laravel-dompdf": "^3.1.1",
         "brick/money": "^0.11.0",
         "filament/filament": "^5.1.1",
